@@ -15,6 +15,9 @@ def resource_path(relative_path):
 KEY_FILE = resource_path("key.key")
 SETTINGS_FILE = resource_path("settings.json")
 
+# Update paths for the HTML template file
+HTML_TEMPLATE_FILE = resource_path("template.html")
+
 # Generate or load encryption key
 if not os.path.exists(KEY_FILE):
     with open(KEY_FILE, "wb") as key_file:
@@ -32,7 +35,7 @@ def load_settings():
             encrypted_data = settings_file.read()
             decrypted_data = cipher.decrypt(encrypted_data).decode()
             return json.loads(decrypted_data)
-    return {"user_email": "", "user_password": "", "html_template": ""}
+    return {"user_email": "", "user_password": ""}
 
 # Save settings to file
 def save_settings_to_file(settings):
@@ -40,11 +43,23 @@ def save_settings_to_file(settings):
     with open(SETTINGS_FILE, "wb") as settings_file:
         settings_file.write(encrypted_data)
 
+# Save HTML template to a file
+def save_html_template(template_content):
+    with open(HTML_TEMPLATE_FILE, "w", encoding="utf-8") as template_file:
+        template_file.write(template_content)
+
+# Load HTML template from a file
+def load_html_template():
+    if os.path.exists(HTML_TEMPLATE_FILE):
+        with open(HTML_TEMPLATE_FILE, "r", encoding="utf-8") as template_file:
+            return template_file.read()
+    return ""
+
 # Initialize settings
 settings = load_settings()
 user_email = settings.get("user_email", "")
 user_password = settings.get("user_password", "")
-html_template = settings.get("html_template", "")
+html_template = load_html_template()
 
 def on_button_click():
     receiver_email = email_entry.get()
@@ -64,9 +79,9 @@ def open_settings():
         settings_window.destroy()
         save_settings_to_file({
             "user_email": user_email,
-            "user_password": user_password,
-            "html_template": html_template
+            "user_password": user_password
         })
+        save_html_template(html_template)
         messagebox.showinfo("Settings", "Settings saved successfully!")
 
     settings_window = tk.Toplevel(root)
