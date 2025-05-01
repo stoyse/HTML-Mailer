@@ -4,6 +4,8 @@ import json
 from cryptography.fernet import Fernet
 import os
 import sys
+import webbrowser
+from smtp_sender import send_email  # Import the send_email function
 
 # Dynamischer Pfad für kompiliertes Bundle
 def resource_path(relative_path):
@@ -61,14 +63,40 @@ user_email = settings.get("user_email", "")
 user_password = settings.get("user_password", "")
 html_template = load_html_template()
 
+def show_app_password_help():
+    messagebox.showinfo("App-Passwort benötigt", 
+                        "Für Gmail mit 2-Faktor-Authentifizierung benötigst du ein App-Passwort anstelle deines regulären Passworts.\n\n"
+                        "1. Gehe zu deinem Google-Konto\n"
+                        "2. Wähle 'Sicherheit' → '2-Faktor-Authentifizierung'\n"
+                        "3. Scrolle nach unten zu 'App-Passwörter'\n"
+                        "4. Erstelle ein neues App-Passwort für 'Mail' und 'Anderes (eigenen Namen angeben)'\n"
+                        "5. Kopiere das 16-stellige Passwort und verwende es in den Einstellungen")
+    webbrowser.open("https://myaccount.google.com/apppasswords")
+
 def on_button_click():
     receiver_email = email_entry.get()
     title = title_entry.get()
     message = message_text.get("1.0", tk.END).strip()
+    
+    # Check if all fields are filled
     if not receiver_email or not title or not message:
         messagebox.showwarning("Warning", "All fields must be filled!")
-    else:
-        messagebox.showinfo("Message", f"Email to: {receiver_email}\nTitle: {title}\nMessage: {message}")
+        return
+        
+    # Check if sender credentials are set
+    if not user_email or not user_password:
+        messagebox.showwarning("Warning", "Please set your email and password in Settings first!")
+        return
+        
+    try:
+        send_email(user_email, user_password, receiver_email, title, message)
+        messagebox.showinfo("Success", "Email sent successfully!")
+    except Exception as e:
+        error_msg = str(e)
+        messagebox.showerror("Error", error_msg)
+        # Check for app password error
+        if "Application-specific password required" in error_msg:
+            show_app_password_help()
 
 def open_settings():
     def save_settings():
@@ -103,6 +131,9 @@ def open_settings():
     template_text.insert("1.0", html_template)
     template_text.pack(pady=5)
 
+    help_button = tk.Button(settings_window, text="Hilfe zu App-Passwörtern", command=show_app_password_help)
+    help_button.pack(pady=5)
+    
     save_button = tk.Button(settings_window, text="Save Settings", command=save_settings)
     save_button.pack(pady=10)
 
