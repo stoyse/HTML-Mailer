@@ -1,0 +1,1 @@
+pyinstaller --onefile --windowed --icon="icon.ico" --add-data "template.html;." --add-data "settings.json;." --add-data "key.key;." --name "HTMLMailer" main.py
