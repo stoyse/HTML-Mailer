@@ -5,6 +5,7 @@ from cryptography.fernet import Fernet
 import os
 import sys
 import webbrowser
+import tempfile
 from smtp_sender import send_email  # Import the send_email function
 
 # Dynamischer Pfad für kompiliertes Bundle
@@ -14,8 +15,9 @@ def resource_path(relative_path):
     return os.path.join(os.path.abspath("."), relative_path)
 
 # Aktualisiere die Pfade für key.key und settings.json
-KEY_FILE = resource_path("key.key")
-SETTINGS_FILE = resource_path("settings.json")
+USER_DIR = os.path.expanduser("~")  # Benutzerverzeichnis
+KEY_FILE = os.path.join(USER_DIR, "key.key")
+SETTINGS_FILE = os.path.join(USER_DIR, "settings.json")
 
 # Update paths for the HTML template file
 HTML_TEMPLATE_FILE = resource_path("template.html")
@@ -89,6 +91,7 @@ def on_button_click():
         return
         
     try:
+        print(user_password)
         send_email(user_email, user_password, receiver_email, title, message)
         messagebox.showinfo("Success", "Email sent successfully!")
     except Exception as e:

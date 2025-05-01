@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['test.py'],
+    ['smtp_sender.py'],
     pathex=[],
     binaries=[],
     datas=[('template.html', '.'), ('settings.json', '.'), ('key.key', '.')],
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='test',
+    name='smtp_sender',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -38,7 +38,7 @@ exe = EXE(
 )
 app = BUNDLE(
     exe,
-    name='test.app',
+    name='smtp_sender.app',
     icon=None,
     bundle_identifier=None,
 )
